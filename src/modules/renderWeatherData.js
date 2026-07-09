@@ -128,7 +128,10 @@ function renderWeather36Hours() {
 
       const weatherDayWeatherIcon = document.createElement("div");
       weatherDayWeatherIcon.classList.add("weather__dayweather-icon");
-      weatherDayWeatherIcon.appendChild(getWeatherSVG(weatherData.Wx2[j]));
+      const svg = getWeatherSVG(weatherData.Wx2[j]);
+      if(svg) {
+        weatherDayWeatherIcon.appendChild(svg);
+      }
 
       const weatherChartTemperature = document.createElement("div");
       weatherChartTemperature.classList.add("weather__chart-temperature");
@@ -169,18 +172,22 @@ function renderWeatherWeek(locationName, container) {
   const index = weekWeatherData.findIndex(
     (element) => element.locationName == locationName
   );
+  if(index === -1) return;
   const weatherData = weekWeatherData[index];
 
   for (let i = 0; i < weatherData.time.length; i++) {
     const weatherWeekItem = document.createElement("div");
     weatherWeekItem.classList.add("weather__weekWeather-item");
 
-    const day = new Date(weatherData.time[i].replace(/-/gi, "/")).getDay();
+    const day = new Date(weatherData.time[i]).getDay();
     const weatherWeekItemDay = document.createElement("h3");
     weatherWeekItemDay.textContent = weekConfig[day];
 
     weatherWeekItem.appendChild(weatherWeekItemDay);
-    weatherWeekItem.append(getWeatherSVG(weatherData.Wx2[i]));
+    const svg = getWeatherSVG(weatherData["天氣現象2"][i]);
+    if(svg) {
+      weatherWeekItem.append(svg);
+    }
 
     container.appendChild(weatherWeekItem);
   }
@@ -188,11 +195,19 @@ function renderWeatherWeek(locationName, container) {
 
 async function init() {
   startDataLoading("載入中");
-  await loadData();
-  // 資料載入，開始監測
-  observer.observe(weatherObserver);
-
-  gpsInit();
+  try {
+    await loadData();
+    stopDataLoading();
+    gpsInit(weekWeatherData);
+    // 直接渲染第一批，避免 observer 對 0 高度元素的 isIntersecting 不穩定問題
+    renderWeather();
+    if (endIndex < hoursWeatherData.length) {
+      observer.observe(weatherObserver);
+    }
+  } catch(error) {
+    stopDataLoading();
+    weatherContainer.innerHTML = `<p class="weather__error">資料載入失敗，請重新整理</p>`;
+  }
 }
 
 async function loadData() {

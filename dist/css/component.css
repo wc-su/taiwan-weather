@@ -942,3 +942,13 @@ svg .rain {
   line-height: 14px;
   color: #225b8f;
 }
+
+.weather__error {
+  text-align: center;
+  font-family: "Noto Sans TC", "Helvetica", "roboto", arial, sans-serif;
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 27px;
+  color: #f24848;
+  padding: 10px 0;
+}

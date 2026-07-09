@@ -1,6 +1,5 @@
-const url = "https://opendata.cwb.gov.tw/api/v1/rest/datastore/";
-const apikey = "CWB-A91E69B8-CE2E-4DDA-A1F5-A22448AA9D4C";
-
+const url = "https://opendata.cwa.gov.tw/api/v1/rest/datastore/";
+const apikey = "CWA-486B352F-C5B1-4A71-9E6E-623F40952215";
 
 // js 將 css 載入
 export function linkCss(cssName) {
@@ -15,33 +14,38 @@ export function linkCss(cssName) {
 
 // 抓取氣象局API 資料
 async function fetchWeatherData(dataid, locationName=null) {
-    let fetchUrl = `${url}${dataid}?Authorization=${apikey}&format=JSON`;
-    if(locationName) {
-        fetchUrl += `&locationName=${locationName}`;
+    try {
+        let fetchUrl = `${url}${dataid}?Authorization=${apikey}&format=JSON`;
+        if(locationName) {
+            fetchUrl += `&locationName=${locationName}`;
+        }
+        const fetchResponse = await fetch(fetchUrl);
+        const weatherData = await fetchResponse.json();
+        return weatherData;
+    } catch (error) {
+        console.error(error);
+        return {};
     }
-    const fetchResponse = await fetch(fetchUrl);
-    const weatherData = await fetchResponse.json();
-    return weatherData;
 }
 
 // 鄉鎮天氣預報-未來1週天氣預報
 // 撈取資料設定
 const weatherConfigWeek = {
-    PoP12h: true,              // 12小時降雨機率
-    T: true,                   // 平均溫度
-    RH: false,                 // 平均相對濕度
-    MinCI: false,              // 最小舒適度指數
-    WS: false,                 // 最大風速
-    MaxAT: false,              // 最高體感溫度
-    Wx: true,                  // 天氣現象
-    MaxCI: false,              // 最大舒適度指數
-    MinT: true,                // 最低溫度
-    UVI: false,                // 紫外線指數
-    WeatherDescription: false, // 天氣預報綜合描述
-    MinAT: false,              // 最低體感溫度
-    MaxT: true,                // 最高溫度
-    WD: false,                 // 風向
-    Td: false                  // 平均露點溫度
+    '平均溫度':       { enabled: true,  fields: ['Temperature'] },
+    '最高溫度':       { enabled: true,  fields: ['MaxTemperature'] },
+    '最低溫度':       { enabled: true,  fields: ['MinTemperature'] },
+    '平均露點溫度':   { enabled: false, fields: ['DewPoint'] },
+    '平均相對濕度':   { enabled: false, fields: ['RelativeHumidity'] },
+    '最高體感溫度':   { enabled: false, fields: ['MaxApparentTemperature'] },
+    '最低體感溫度':   { enabled: false, fields: ['MinApparentTemperature'] },
+    '最大舒適度指數': { enabled: false, fields: ['MaxComfortIndex', 'MaxComfortIndexDescription'] },
+    '最小舒適度指數': { enabled: false, fields: ['MinComfortIndex', 'MinComfortIndexDescription'] },
+    '風速':           { enabled: false, fields: ['BeaufortScale', 'WindSpeed'] },
+    '風向':           { enabled: false, fields: ['WindDirection'] },
+    '12小時降雨機率': { enabled: true,  fields: ['ProbabilityOfPrecipitation'] },
+    '天氣現象':       { enabled: true,  fields: ['Weather', 'WeatherCode'] },
+    '紫外線指數':     { enabled: false, fields: ['UVExposureLevel', 'UVIndex'] },
+    '天氣預報綜合描述': { enabled: false, fields: ['WeatherDescription'] },
 }
 const unitOfDataWeek = 7;
 export async function getWeatherDataWeek(locationName=null) {
@@ -50,52 +54,56 @@ export async function getWeatherDataWeek(locationName=null) {
 }
 function classifyWeatherDataWeek(weatherData) {
     const returnData = [];
-
-    const weatherLocationList = weatherData.records.locations[0].location;
+    const weatherLocationList = weatherData.records.Locations[0].Location;
     // 拆分各縣市
     let timeInfo = [];
     for(let i = 0, dataLen = weatherLocationList.length; i < dataLen; i++) {
         let solvedData = {};
 
         const weatherLocationItem = weatherLocationList[i];
-        const weatherElementList = weatherLocationItem.weatherElement;
+        const weatherElementList = weatherLocationItem.WeatherElement;
         // 拆分天氣詳細資訊
-        for(let j = 0, len = weatherElementList.length;  j < len; j++) {
+        for(let j = 0; j < weatherElementList.length; j++) {
             const weatherElementItem = weatherElementList[j];
 
             // skip 沒有要抓取的資料
-            if(!weatherConfigWeek[`${weatherElementItem.elementName}`]) { continue; }
+            const config = weatherConfigWeek[weatherElementItem.ElementName];
+            if (!config?.enabled) continue;
+
+            const fields = config.fields;
 
             // 拆分未來一週資訊
-            let timeList = weatherElementItem.time;
+            let timeList = weatherElementItem.Time;
             let timeLen = timeList.length;
-            let timeItem = null;
             let weekInfo = [];
             let weekSecondInfo = [];
             let compareDate = null;
-            for(let k = 0; k < timeLen, timeItem = timeList[k]; k++) {
+            for(let k = 0; k < timeLen; k++) {
+                const timeItem = timeList[k];
                 // 用 startTime 做區分，相同日期不再抓取
-                const startTime = new Date(timeItem.startTime.replace(/-/gi, "/"));
+                const startTime = new Date(timeItem.StartTime.replace(/-/gi, "/"));
                 if(!compareDate || compareDate.getDate() != startTime.getDate()) {
                     if(i == 0 && j == 0) {
-                        timeInfo.push(timeItem.startTime);
+                        timeInfo.push(timeItem.StartTime);
                     }
-                    if(weatherElementItem.elementName == "Wx") {
-                        weekSecondInfo.push(timeItem.elementValue[1].value.trim());
+                    if(weatherElementItem.ElementName == "天氣現象") {
+                        weekSecondInfo.push(timeItem.ElementValue[0][fields[1]].trim());
                     }
-                    weekInfo.push(timeItem.elementValue[0].value.trim());
+                    weekInfo.push(timeItem.ElementValue[0][fields[0]].trim());
                     compareDate = startTime;
                     // 超過設定筆數，不再抓取
                     if(weekInfo.length >= unitOfDataWeek) { break; }
                 }
             }
-            solvedData[`${weatherElementItem.elementName}`] = weekInfo;
+            solvedData[`${weatherElementItem.ElementName}`] = weekInfo;
             if(weekSecondInfo.length > 0) {
-                solvedData[`${weatherElementItem.elementName}2`] = weekSecondInfo;
+                solvedData[`${weatherElementItem.ElementName}2`] = weekSecondInfo;
             }
         }
-        solvedData["time"] = timeInfo;
-        solvedData["locationName"] = weatherLocationItem.locationName;
+        solvedData["time"] = [...timeInfo];
+        solvedData["locationName"] = weatherLocationItem.LocationName;
+        solvedData["latitude"] = weatherLocationItem.Latitude;
+        solvedData["longitude"] = weatherLocationItem.Longitude;
         returnData.push(solvedData);
     }
     return returnData;
@@ -136,10 +144,10 @@ function classifyWeatherData36Hours(weatherData) {
             // 拆分未來一週資訊
             let timeList = weatherElementItem.time;
             let timeLen = timeList.length;
-            let timeItem=null;
             let weekInfo = [];
             let weekSecondInfo = [];
-            for(let k = 0; k < timeLen, timeItem = timeList[k]; k++) {
+            for(let k = 0; k < timeLen; k++) {
+                const timeItem = timeList[k];
                 if(i == 0 && j == 0) {
                     timeInfo.push(timeItem.startTime);
                 }
@@ -155,7 +163,7 @@ function classifyWeatherData36Hours(weatherData) {
                 solvedData[`${weatherElementItem.elementName}2`] = weekSecondInfo;
             }
         }
-        solvedData["time"] = timeInfo;
+        solvedData["time"] = [...timeInfo];
         solvedData["locationName"] = weatherLocationItem.locationName;
         returnData.push(solvedData);
     }
