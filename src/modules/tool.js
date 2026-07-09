@@ -1,6 +1,3 @@
-const url = "https://opendata.cwa.gov.tw/api/v1/rest/datastore/";
-const apikey = "CWA-486B352F-C5B1-4A71-9E6E-623F40952215";
-
 // js 將 css 載入
 export function linkCss(cssName) {
     const head = document.querySelector("head");
@@ -15,7 +12,7 @@ export function linkCss(cssName) {
 // 抓取氣象局API 資料
 async function fetchWeatherData(dataid, locationName=null) {
     try {
-        let fetchUrl = `${url}${dataid}?Authorization=${apikey}&format=JSON`;
+        let fetchUrl = `${process.env.API_URL}${dataid}?Authorization=${process.env.API_KEY}&format=JSON`;
         if(locationName) {
             fetchUrl += `&locationName=${locationName}`;
         }
