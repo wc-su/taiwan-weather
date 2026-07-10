@@ -4,6 +4,8 @@
 
 > 本專案原為 Bootcamp 多人協作專案，隨著 Bootcamp 結束，團隊協作也隨著告一段落。此 repo 為個人 fork 後的後續維護版本，僅視情況修正氣象資料來源異動等問題。
 
+https://github.com/user-attachments/assets/084f3b4f-bb14-4738-be6e-c7c10ed893e2
+
 ## 動機
 
 這是 2022 年參加前端 Bootcamp 時，與團隊合作開發的專案。當時想解決的問題是：查詢天氣得在 App 裡一個個縣市切換才看得到，因此想做一個能一頁瀏覽全台各縣市天氣、並自動用 GPS 定位鎖定所在地區的網站，以中央氣象局（現為中央氣象署）公開資料實作。
@@ -24,8 +26,8 @@
 
 ## 功能
 
-- 選擇縣市查看未來一週天氣預報（溫度、降雨機率、天氣現象）
-- 今明 36 小時天氣預報
+- 選擇縣市查看未來一週天氣預報（天氣現象圖示）
+- 今明 36 小時天氣預報（最高溫、最低溫、天氣現象文字與圖示）
 - GPS 定位，自動比對並鎖定最近的氣象站/縣市
 - 「全臺縣市」一次顯示所有縣市天氣
 - 首頁雲朵視差動畫、Header 滾動變色、載入動畫等視覺效果
@@ -40,22 +42,22 @@
 
 ```
 .
-├── index.html                    # 主頁面
+├── index.html                      # 主頁面
 ├── src/
-│   ├── index.js                  # 入口，載入各功能模組與樣式
+│   ├── index.js                    # 入口，載入各功能模組與樣式
 │   └── modules/
-│       ├── tool.js               # 共用工具、氣象資料 fetch 與解析
-│       ├── renderWeatherData.js  # 天氣資料渲染（核心模組）
-│       ├── dropDownMenu.js       # 縣市下拉選單
-│       ├── gps2.js               # GPS 定位、比對最近氣象站
-│       ├── weather-svg.js        # 天氣圖示 SVG
+│       ├── tool.js                 # 共用工具、氣象資料 fetch 與解析
+│       ├── renderWeatherData.js    # 天氣資料渲染（核心模組）
+│       ├── dropDownMenu.js         # 縣市下拉選單
+│       ├── gps2.js                 # GPS 定位、比對最近氣象站
+│       ├── weather-svg.js          # 天氣圖示 SVG
 │       ├── weatherLoadingEffect.js # 載入動畫
-│       ├── headerColorChange.js  # Header 滾動變色
-│       └── transformCloud.js     # 首頁雲朵視差動畫
+│       ├── headerColorChange.js    # Header 滾動變色
+│       └── transformCloud.js       # 首頁雲朵視差動畫
 ├── dist/
-│   ├── css/                      # 靜態樣式，由 index.html / linkCss() 直接引用
-│   ├── font/                     # 靜態資源，Fontello 圖示字型
-│   └── js/bundle.js              # 唯一由 webpack 打包產出的檔案（src/ 的打包結果）
+│   ├── css/                        # 靜態樣式，由 index.html / linkCss() 直接引用
+│   ├── font/                       # 靜態資源，Fontello 圖示字型
+│   └── js/bundle.js                # 唯一由 webpack 打包產出的檔案（src/ 的打包結果）
 └── webpack.config.js
 ```
 
