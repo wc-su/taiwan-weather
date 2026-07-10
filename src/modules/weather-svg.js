@@ -23,9 +23,6 @@ function cloudy() {
         <circle class="cloud" cx="-25" cy="10" r="15"></circle>
         <circle class="cloud" cx="-7" cy="15" r="15"></circle>
     </svg>`;
-    var parser = new DOMParser();
-    var wrapper = parser.parseFromString(html, "text/html");
-    return wrapper;
 }
 
 function rainy() {
@@ -67,7 +64,7 @@ export function getWeatherSVG(value) {
     else if(value <= 22) {
         html = rainy();
     }
-    var parser = new DOMParser();
-    var wrapper = parser.parseFromString(html, "text/html");
+    const parser = new DOMParser();
+    const wrapper = parser.parseFromString(html, "text/html");
     return wrapper.querySelector("svg");
 }

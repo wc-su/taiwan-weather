@@ -20,6 +20,11 @@ export function startDataLoading(content) {
     document.body.appendChild(container);
 }
 
+export function setDataLoading(content) {
+    const loadingContent = document.querySelector(".weather__loading-content > p");
+    loadingContent.textContent = content;
+}
+
 export function stopDataLoading() {
     const container = document.querySelector(".weather__loading");
     container.classList.add("weather__loading--close");

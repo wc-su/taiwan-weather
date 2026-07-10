@@ -26,8 +26,8 @@
 ---------------------------*/
 #mouse {
   position: absolute;
-  top: 40px;
-  left: calc(100% - 125px);
+  top: 60px;
+  left: calc(100% - 80px);
   -webkit-transform: translate(-5%, -5%);
   -ms-transform: translate(-5%, -5%);
   transform: translate(-5%, -5%);
@@ -51,20 +51,23 @@
   width: 188px;
 }
 #mouse .geolocation {
-  top: 20px;
   font-family: "Noto Sans TC", "Helvetica", "roboto", arial, sans-serif;
   font-weight: 900;
   font-size: 12px;
-  line-height: 0.8rem;
+  line-height: 0.9rem;
   left: 50%;
-  -webkit-transform: translateX(-50%) rotate(-0.5deg);
-  -ms-transform: translateX(-50%) rotate(-0.5deg);
-  transform: translateX(-50%) rotate(-0.5deg);
+  -webkit-transform: translateX(-50%) rotate(-1deg);
+  -ms-transform: translateX(-50%) rotate(-1deg);
+  transform: translateX(-50%) rotate(-1deg);
   white-space: nowrap;
 }
 
 /* Geolocation */
 .geolocation {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   padding: 0px;
   color: #225b8f;
   margin: -5px;
@@ -79,12 +82,7 @@
   padding-bottom: 4px;
 }
 .geolocation span.phoneIp {
-  display: none;
-}
-@media (min-width: 768px) {
-  .geolocation span.phoneIp {
-    display: inline-block;
-  }
+  opacity: 0.9;
 }
 
 /*-------------------------*/
@@ -943,4 +941,14 @@ svg .rain {
   font-size: 16px;
   line-height: 14px;
   color: #225b8f;
+}
+
+.weather__error {
+  text-align: center;
+  font-family: "Noto Sans TC", "Helvetica", "roboto", arial, sans-serif;
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 27px;
+  color: #f24848;
+  padding: 10px 0;
 }
